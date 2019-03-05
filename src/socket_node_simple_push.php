@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Trait Socket_push_simple
+ * Trait Socket_node_push_simple
  */
-Class Socket_push_simple {
+Trait Socket_node_push_simple {
 
     use Crypto_simple;
 
@@ -86,10 +86,10 @@ Class Socket_push_simple {
         return $response;
     }
 
-    public function data_compact(stdClass $workflow, string $input){
+    public function data_compact(array $workflow_transition_list, string $input){
 
       $this->json_request = $this->global_json_request;
-      $this->json_request->workflow = $workflow;
+      $this->json_request->workflow = $workflow_transition_list;
       $this->json_request->input = $input;
       $req = json_encode($input);
 
@@ -128,8 +128,11 @@ Class Socket_push_simple {
 
         self::socket_state($res, 'socket_bind');
 
-        while (is_file($this->mutex_stop_file) === false)
+        $break = false;
+
+        while (is_file($this->mutex_stop_file) === false && $break === false)
         {
+
           // receive query
           $set = socket_set_block($this->sock);
 
@@ -169,8 +172,9 @@ Class Socket_push_simple {
               unset(self::$client_list[$this->json_request->relationship->from]);
 
               $res = false;
+              $break = true;
 
-              break 2;
+              continue;
           }
           // @TODO traiter
         }
@@ -183,32 +187,6 @@ Class Socket_push_simple {
             self::socket_state($this->sock, 'socket_close');
         }
         return $res;
-    }
-
-    public function socket_push(string $input, stdClass $workflow)
-    {
-      $res = socket_bind($this->sock, $this->client_side_sock);
-
-      self::socket_state($res, 'socket_bind');
-
-      $req = self::data_compact($workflow, $input);
-
-      self::socket_state($req, 'crypt_msg');
-
-      $len = strlen($req);
-      $bytes_sent = socket_sendto($this->sock, $req, $len, 0, $this->server_side_sock);
-      $res = true;
-
-      if($bytes_sent === -1 || $bytes_sent === false) $res = false;
-
-      self::socket_state($res, 'len');
-
-      self::$client_list = array();
-      socket_close($this->sock);
-
-      self::socket_state($this->sock, 'socket_close');
-
-      return $res;
     }
 
     public static function start_daemon()
