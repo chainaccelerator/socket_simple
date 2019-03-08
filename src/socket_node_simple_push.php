@@ -86,7 +86,7 @@ Trait Socket_node_push_simple {
         return $response;
     }
 
-    public function data_compact(array $workflow_transition_list, string $input){
+    public function socket_data_compact(array $workflow_transition_list, string $input){
 
       $this->json_request = $this->global_json_request;
       $this->json_request->workflow = $workflow_transition_list;
@@ -102,7 +102,7 @@ Trait Socket_node_push_simple {
       return $req;
     }
 
-    public function data_uncompact($buf){
+    public function socket_data_uncompact($buf){
 
         // request uncrypt
         $req = self::uncrypt($buf);

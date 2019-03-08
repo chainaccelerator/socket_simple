@@ -3,19 +3,23 @@
 /**
  * Trait Socket_client_push_simple
  */
-Trait Socket_client_push_simple {
+Trait Socket_client_push_broadcast_simple {
 
     use Socket_node_push_simple;
 
-    public function socket_client_push_broadcast(string $input, array $workflow_transition_list)
+    private static $socket_client_push_broadcast_address_algo = 'sha256';
+
+    public function socket_client_push_broadcast_send(string $request_address_api_uri, array $workflow_transition_list)
     {
         $res = socket_bind($this->sock, $this->client_side_sock);
 
         self::socket_state($res, 'socket_bind');
 
-        $req = self::data_compact($workflow_transition_list, $input);
+        $req = self::socket_data_compact($workflow_transition_list, $request_address_api_uri);
 
-        $push_address = hash(microtime().$req.json_encode($res));
+        $push_address = hash(self::$socket_client_push_broadcast_address_algo, microtime().$req.json_encode($res).$request_address_api_uri);
+
+        $req = $push_address.$request_address_api_uri.'/'.$req;
 
         self::socket_state($req, 'crypt_msg');
 
@@ -35,9 +39,11 @@ Trait Socket_client_push_simple {
         return $push_address;
     }
 
-    public function socket_client_push_broadcast_request_count(string $request_address){
+    public function socket_client_push_broadcast_request_count_get(string $request_address_api_uri){
 
-        // @TODO
+        // @TODO get
+
+
         return 3;
     }
 }
