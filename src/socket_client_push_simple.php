@@ -1,4 +1,4 @@
-<?php
+<?
 
 /**
  * Trait Socket_client_push_simple

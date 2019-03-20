@@ -1,4 +1,4 @@
-<?php
+<?
 
 /**
  * Trait Socket_node_push_simple
@@ -196,4 +196,5 @@ Trait Socket_node_push_simple {
         return true;
     }
 }
+
 
